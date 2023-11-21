@@ -52,4 +52,4 @@
 ### Состояния поздки
 ![states](img/states.png)
 ### Процесс успешной поездки
-![process1](image.png)
+![process1](img/process1.png)
