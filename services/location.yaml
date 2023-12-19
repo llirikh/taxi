@@ -80,12 +80,6 @@ components:
             id: 
               type: string
               description: Идентификатор водителя
-            name:
-              type: string
-              description: ФИО водителя
-            auto:
-              type: string
-              description: марка автомобиля водителя
     LatLngLiteral:
       type: object
       title: LatLngLiteral

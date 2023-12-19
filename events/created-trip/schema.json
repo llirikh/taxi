@@ -60,12 +60,57 @@
           "offer_id": {
             "type": "string",
             "description": "Идентификатор предложения по которому создана поездка"
+          },
+          "price": {
+            "type": "object",
+            "description": "Стоимость поездки",
+            "properties": {
+              "amount":{
+                "type": "number",
+                "description": "Amount expressed as a decimal number of major currency units",
+                "format": "decimal"
+              },
+              "currency": {
+                "type": "string",
+                "description": "3 letter currency code as defined by ISO-4217",
+                "format": "iso-4217"
+              }
+            },
+            "required": ["amount", "currency"]
+          },
+          "from": {
+            "$ref": "#/$defs/latLngLiteral",
+            "description": "Точка отправления"
+          },
+          "to": {
+            "$ref": "#/$defs/latLngLiteral",
+            "description": "Точка завершения поездки"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["DRIVER_SEARCH"]
           }
         },
         "required": [
           "trip_id",
-          "offer_id"
+          "offer_id",
+          "price",
+          "status",
+          "from",
+          "to"
         ]
+      },
+      "latLngLiteral": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "required": ["lat", "lng"]
       }
     }
   }

@@ -15,6 +15,13 @@ paths:
       operationId: getTrips
       summary: List trips
       description: List trips
+      parameters:
+        - name : user_id
+          in: header
+          schema:
+            type: string
+            format: uuid
+          required: true
       responses:
         '200':
           description: Success operation
@@ -29,6 +36,13 @@ paths:
         - trip
       summary: Create trip
       operationId: createTrip
+      parameters:
+        - name : user_id
+          in: header
+          schema:
+            type: string
+            format: uuid
+          required: true
       requestBody:
         description: Create new trip
         content:
@@ -51,6 +65,12 @@ paths:
       summary: Get trip by ID
       operationId: getTripByID
       parameters:
+        - name : user_id
+          in: header
+          schema:
+            type: string
+            format: uuid
+          required: true
         - name: trip_id
           in: path
           description: ID of created trip
@@ -76,6 +96,12 @@ paths:
       summary: Cancel trip
       operationId: cancelTrip
       parameters:
+        - name : user_id
+          in: header
+          schema:
+            type: string
+            format: uuid
+          required: true
         - name: trip_id
           in: path
           description: ID of created trip
