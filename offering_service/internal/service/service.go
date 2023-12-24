@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"math"
+	"offering_service/internal/config"
 	"offering_service/internal/models"
 	"time"
 )
@@ -13,15 +14,21 @@ const (
 	EarthRad   = 6371
 	MoneyPerKm = 15
 	MinPrice   = 200
-	SigningKey = "gergn#4#%345JDSNFLKSDGNja#4353KSFjH"
 	ExpireTime = 12 * time.Hour
 )
 
 type Offer_service struct {
+	Config *models.Config
 }
 
 func NewService() *Offer_service {
-	return &Offer_service{}
+
+	cfg, err := config.InitConfig()
+	if err != nil {
+		//loging
+	}
+
+	return &Offer_service{Config: cfg}
 }
 
 func degreeToRadians(degree float64) float64 {
@@ -54,12 +61,12 @@ func (o *Offer_service) OfferToJwt(offer *models.Offer) (string, error) {
 		"exp":   time.Now().Add(ExpireTime).Unix(),
 	})
 
-	return jwtToken.SignedString([]byte(SigningKey))
+	return jwtToken.SignedString([]byte(o.Config.PrivateKey))
 }
 
 func (o *Offer_service) JwtToOffer(jwtToken string) (*models.Offer, error) {
 	parsedToken, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SigningKey), nil
+		return []byte(o.Config.PrivateKey), nil
 	})
 
 	if err != nil {

@@ -18,6 +18,7 @@ type OfferingHandler struct {
 
 func NewHandler() *OfferingHandler {
 	offerService := service.NewService()
+
 	handler := OfferingHandler{Service: offerService}
 
 	router := chi.NewRouter()
@@ -25,7 +26,7 @@ func NewHandler() *OfferingHandler {
 	router.Get("/offers/{offerID}", handler.ParseOffer)
 
 	handler.Server = &http.Server{
-		Addr:    ":8080",
+		Addr:    offerService.Config.Port,
 		Handler: router,
 	}
 

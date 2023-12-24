@@ -16,3 +16,8 @@ type Offer struct {
 	Client_id string
 	Price     Price
 }
+
+type Config struct {
+	Port       string `json:"port"`
+	PrivateKey string `json:"private_key"`
+}
