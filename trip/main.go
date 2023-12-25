@@ -10,7 +10,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
+func newKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	brokers := strings.Split(kafkaURL, ",")
 	return kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  brokers,
@@ -21,23 +21,63 @@ func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	})
 }
 
+func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
+	return &kafka.Writer{
+		Addr:     kafka.TCP(kafkaURL),
+		Topic:    topic,
+		Balancer: &kafka.LeastBytes{},
+	}
+}
+
+func SendMessage(writer *kafka.Writer, i int) {
+	key := fmt.Sprintf("Key-%d", i)
+	msg := kafka.Message{
+		Key:   []byte(key),
+		Value: []byte("FROM TRIP " + string(rune(i))),
+	}
+	var err error
+	err = writer.WriteMessages(context.Background(), msg)
+
+	if err != nil {
+		fmt.Println("!!! TRIP WRITING ERROR : " + err.Error() + " !!!")
+	} else {
+		fmt.Println("TRIP PRODUCED -> ", key)
+	}
+}
+
+func GetMessage(reader *kafka.Reader) {
+	m, err := reader.ReadMessage(context.Background())
+	if err != nil {
+		fmt.Println("!!! TRIP ERROR READING: " + err.Error() + " !!!")
+		time.Sleep(1 * time.Second)
+	}
+	fmt.Printf("TRIP CONSUMED -> TOPIC:%v PARTITION:%v OFFSET:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
+}
+
 func main() {
-	// get kafka reader using environment variables.
+	// Init kafka params
 	kafkaURL := os.Getenv("kafkaURL")
-	topic := os.Getenv("topic")
+	topicFrom := os.Getenv("topicFROM")
+	topicClient := os.Getenv("topicCLIENT")
+	topicDriver := os.Getenv("topicDRIVER")
 	groupID := os.Getenv("groupID")
 
-	reader := getKafkaReader(kafkaURL, topic, groupID)
-
+	// Init reader
+	reader := newKafkaReader(kafkaURL, topicFrom, groupID)
 	defer reader.Close()
 
-	fmt.Println("*** START TRIP CONSUME ***")
-	for {
-		m, err := reader.ReadMessage(context.Background())
-		if err != nil {
-			fmt.Println("!!!TRIP ERROR WHILE READING: " + err.Error() + " !!!")
-			time.Sleep(1 * time.Second)
-		}
-		fmt.Printf("TOPIC:%v PARTITION:%v OFFSET:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
+	// Init writers
+	writerClient := newKafkaWriter(kafkaURL, topicClient)
+	defer writerClient.Close()
+
+	writerDriver := newKafkaWriter(kafkaURL, topicDriver)
+	defer writerDriver.Close()
+
+	fmt.Println("*** START TRIP ***")
+	for i := 0; ; i++ {
+		SendMessage(writerClient, i)
+		SendMessage(writerDriver, i)
+		time.Sleep(1 * time.Second)
+		GetMessage(reader)
 	}
 }
