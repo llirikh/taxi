@@ -67,7 +67,6 @@ func (h *OfferingHandler) CreateOffer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *OfferingHandler) ParseOffer(w http.ResponseWriter, r *http.Request) {
@@ -91,5 +90,4 @@ func (h *OfferingHandler) ParseOffer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"offering_service/internal/api/handlers"
 	"os/signal"
@@ -26,11 +27,13 @@ func (a *App) Start(ctx context.Context) error {
 	doneWithErr := make(chan error)
 
 	go func() {
+		fmt.Println("stst")
 		if err := a.Handler.Server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			doneWithErr <- err
 		}
 	}()
 
+	fmt.Println("aaaaaaaaaaa")
 	err := <-doneWithErr
 	if err != nil {
 		return err
