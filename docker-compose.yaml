@@ -23,6 +23,7 @@ services:
   trip:
     build:
       context: trip
+      dockerfile: "trip.Dockerfile"
     environment:
       kafkaURL: kafka:9092
       topicFROM: topic-client-driver

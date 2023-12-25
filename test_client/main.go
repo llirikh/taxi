@@ -39,6 +39,7 @@ func SendMessage(writer *kafka.Writer, i int) {
 
 	if err != nil {
 		fmt.Println("!!! CLIENT WRITING ERROR : " + err.Error() + " !!!")
+		time.Sleep(time.Second * 5)
 	} else {
 		fmt.Println("CLIENT PRODUCED -> ", key)
 	}
@@ -68,10 +69,15 @@ func main() {
 	reader := newKafkaReader(kafkaURL, topicFrom, groupId)
 	defer reader.Close()
 
+	fmt.Println(kafkaURL, topicTo, topicFrom, groupId)
+	fmt.Println(writer)
+	fmt.Println(reader)
+	time.Sleep(10 * time.Second)
+
 	fmt.Println("*** START CLIENT ***")
 	for i := 0; ; i++ {
 		SendMessage(writer, i)
-		time.Sleep(4 * time.Second)
-		GetMessage(reader)
+		time.Sleep(10 * time.Second)
+		//GetMessage(reader)
 	}
 }
