@@ -46,7 +46,6 @@ func (a *App) Start(ctx context.Context) error {
 		}
 	}()
 
-	fmt.Println("fuck")
 	a.Handler.Database.Close()
 
 	err := <-doneWithErr

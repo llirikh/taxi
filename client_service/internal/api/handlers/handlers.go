@@ -4,12 +4,10 @@ import (
 	"client_service/internal/api/requests"
 	"client_service/internal/models"
 	"client_service/internal/mongodb"
-	"context"
 	"encoding/json"
 	"github.com/go-chi/chi"
 	"io"
 	"net/http"
-	"time"
 )
 
 type ClientHandler struct {
@@ -36,11 +34,8 @@ func NewHandler(db *mongodb.Database, cfg *models.Config) *ClientHandler {
 }
 
 func (h *ClientHandler) getTrip(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	tripID := chi.URLParam(r, "trip_id")
-	trip, err := h.Database.GetTripByID(ctx, tripID)
+	trip, err := h.Database.GetTripByID(tripID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -59,11 +54,8 @@ func (h *ClientHandler) getTrip(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ClientHandler) listTrips(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	userID := r.Header.Get("user_id")
-	trips, err := h.Database.GetTripsByUserID(ctx, userID)
+	trips, err := h.Database.GetTripsByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -82,11 +74,8 @@ func (h *ClientHandler) listTrips(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ClientHandler) cancelTrip(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	tripID := chi.URLParam(r, "trip_id")
-	if err := h.Database.CancelTripByID(ctx, tripID); err != nil {
+	if err := h.Database.CancelTripByID(tripID); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -94,9 +83,6 @@ func (h *ClientHandler) cancelTrip(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ClientHandler) createTrip(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	userID := r.Header.Get("user_id")
 	requestBodyJson, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -130,7 +116,7 @@ func (h *ClientHandler) createTrip(w http.ResponseWriter, r *http.Request) {
 		Price:  mongodb.Price{Amount: offer.Price.Amount, Currency: offer.Price.Currency},
 		Status: "DRIVER_SEARCH"}
 
-	err = h.Database.CreateTrip(ctx, &trip)
+	err = h.Database.CreateTrip(&trip)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

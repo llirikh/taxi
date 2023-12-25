@@ -37,9 +37,10 @@ func (db *Database) Close() {
 	}
 }
 
-func (db *Database) GetTripsByUserID(ctx context.Context, userID string) ([]Trip, error) {
+func (db *Database) GetTripsByUserID(userID string) ([]Trip, error) {
 	coll := db.Client.Database(db.Name).Collection("trips")
-
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	cursor, err := coll.Find(ctx, bson.M{"client_id": userID})
 	if err != nil {
 		return nil, err
@@ -56,8 +57,10 @@ func (db *Database) GetTripsByUserID(ctx context.Context, userID string) ([]Trip
 	return trips, nil
 }
 
-func (db *Database) GetTripByID(ctx context.Context, tripID string) (*Trip, error) {
+func (db *Database) GetTripByID(tripID string) (*Trip, error) {
 	coll := db.Client.Database(db.Name).Collection("trips")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	currID, err := primitive.ObjectIDFromHex(tripID)
 	if err != nil {
 		return nil, err
@@ -74,8 +77,10 @@ func (db *Database) GetTripByID(ctx context.Context, tripID string) (*Trip, erro
 	return &trip, nil
 }
 
-func (db *Database) CancelTripByID(ctx context.Context, tripID string) error {
+func (db *Database) CancelTripByID(tripID string) error {
 	coll := db.Client.Database(db.Name).Collection("trips")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	currID, err := primitive.ObjectIDFromHex(tripID)
 	if err != nil {
 		return err
@@ -89,8 +94,10 @@ func (db *Database) CancelTripByID(ctx context.Context, tripID string) error {
 	return nil
 }
 
-func (db *Database) CreateTrip(ctx context.Context, trip *Trip) error {
+func (db *Database) CreateTrip(trip *Trip) error {
 	coll := db.Client.Database(db.Name).Collection("trips")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	if _, err := coll.InsertOne(ctx, trip); err != nil {
 		return err
