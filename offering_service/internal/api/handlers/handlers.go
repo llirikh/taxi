@@ -36,6 +36,7 @@ func NewHandler() *OfferingHandler {
 func (h *OfferingHandler) CreateOffer(w http.ResponseWriter, r *http.Request) {
 	requestBodyJson, err := io.ReadAll(r.Body)
 	if err != nil {
+		h.Service.Logger.Warn("Reading body error")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	defer r.Body.Close()
@@ -43,6 +44,7 @@ func (h *OfferingHandler) CreateOffer(w http.ResponseWriter, r *http.Request) {
 	var request requests.CreateOfferRequest
 	err = json.Unmarshal(requestBodyJson, &request)
 	if err != nil {
+		h.Service.Logger.Warn("Unmarshalling error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -58,12 +60,14 @@ func (h *OfferingHandler) CreateOffer(w http.ResponseWriter, r *http.Request) {
 	response := responses.CreateOfferResponse{Offer_id: jwtOffer}
 	resp, err := json.Marshal(response)
 	if err != nil {
+		h.Service.Logger.Warn("marshalling error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	_, err = w.Write(resp)
 	if err != nil {
+		h.Service.Logger.Warn("Response writing error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -74,6 +78,7 @@ func (h *OfferingHandler) ParseOffer(w http.ResponseWriter, r *http.Request) {
 
 	parsedOffer, err := h.Service.JwtToOffer(offerID)
 	if err != nil {
+		h.Service.Logger.Info("decoding jwt error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -81,12 +86,14 @@ func (h *OfferingHandler) ParseOffer(w http.ResponseWriter, r *http.Request) {
 	response := responses.ParseOfferResponse{From: parsedOffer.From, To: parsedOffer.To, Price: parsedOffer.Price, Client_id: parsedOffer.Client_id}
 	resp, err := json.Marshal(response)
 	if err != nil {
+		h.Service.Logger.Warn("marshalling error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	_, err = w.Write(resp)
 	if err != nil {
+		h.Service.Logger.Warn("Response writing error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

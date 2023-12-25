@@ -6,6 +6,7 @@ import (
 	"client_service/internal/mongodb"
 	"encoding/json"
 	"github.com/go-chi/chi"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 )
@@ -14,10 +15,11 @@ type ClientHandler struct {
 	Server   *http.Server
 	Config   *models.Config
 	Database *mongodb.Database
+	Logger   *zap.Logger
 }
 
-func NewHandler(db *mongodb.Database, cfg *models.Config) *ClientHandler {
-	handler := ClientHandler{Config: cfg, Database: db}
+func NewHandler(db *mongodb.Database, cfg *models.Config, log *zap.Logger) *ClientHandler {
+	handler := ClientHandler{Config: cfg, Database: db, Logger: log}
 
 	router := chi.NewRouter()
 	router.Post("/trips", handler.createTrip)
@@ -37,20 +39,22 @@ func (h *ClientHandler) getTrip(w http.ResponseWriter, r *http.Request) {
 	tripID := chi.URLParam(r, "trip_id")
 	trip, err := h.Database.GetTripByID(tripID)
 	if err != nil {
+		h.Logger.Warn("Error Getting trip by id from db")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	resp, err := json.Marshal(trip)
 	if err != nil {
+		h.Logger.Warn("Marshalling error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	_, err = w.Write(resp)
 	if err != nil {
+		h.Logger.Warn("Response writing error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *ClientHandler) listTrips(w http.ResponseWriter, r *http.Request) {
@@ -62,15 +66,16 @@ func (h *ClientHandler) listTrips(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := json.Marshal(trips)
 	if err != nil {
+		h.Logger.Warn("Marshalling error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	_, err = w.Write(resp)
 	if err != nil {
+		h.Logger.Warn("Response writing error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *ClientHandler) cancelTrip(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +84,6 @@ func (h *ClientHandler) cancelTrip(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *ClientHandler) createTrip(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +97,7 @@ func (h *ClientHandler) createTrip(w http.ResponseWriter, r *http.Request) {
 	var request requests.RequestCreateTrip
 	err = json.Unmarshal(requestBodyJson, &request)
 	if err != nil {
+		h.Logger.Warn("Unmarshalling error")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -106,6 +111,7 @@ func (h *ClientHandler) createTrip(w http.ResponseWriter, r *http.Request) {
 	var offer models.Offer
 	err = json.Unmarshal(bytes, &offer)
 	if err != nil {
+		h.Logger.Warn("Unmarshalling error")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	defer resp.Body.Close()
@@ -118,6 +124,7 @@ func (h *ClientHandler) createTrip(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Database.CreateTrip(&trip)
 	if err != nil {
+		h.Logger.Warn("Error creating trip in db")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	w.WriteHeader(http.StatusOK)

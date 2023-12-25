@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"go.uber.org/zap"
+	"log"
 	"math"
 	"offering_service/internal/config"
 	"offering_service/internal/models"
@@ -19,16 +21,23 @@ const (
 
 type Offer_service struct {
 	Config *models.Config
+	Logger *zap.Logger
 }
 
 func NewService() *Offer_service {
 
-	cfg, err := config.InitConfig()
+	logger, err := zap.NewProduction()
 	if err != nil {
-		//loging
+		log.Fatalf("Logger init error. %v", err)
+		return nil
 	}
 
-	return &Offer_service{Config: cfg}
+	cfg, err := config.InitConfig()
+	if err != nil {
+		logger.Warn("Error initialization configuration")
+	}
+
+	return &Offer_service{Config: cfg, Logger: logger}
 }
 
 func degreeToRadians(degree float64) float64 {
