@@ -6,6 +6,7 @@ import (
 	"client_service/internal/mongodb"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os/signal"
@@ -39,11 +40,13 @@ func (a *App) Start(ctx context.Context) error {
 	doneWithErr := make(chan error)
 
 	go func() {
+		fmt.Println("server")
 		if err := a.Handler.Server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			doneWithErr <- err
 		}
 	}()
 
+	fmt.Println("fuck")
 	a.Handler.Database.Close()
 
 	err := <-doneWithErr

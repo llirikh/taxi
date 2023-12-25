@@ -50,6 +50,8 @@ func (db *Database) GetTripsByUserID(ctx context.Context, userID string) ([]Trip
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("got trips from bd")
+	fmt.Println(trips)
 
 	return trips, nil
 }
@@ -66,6 +68,9 @@ func (db *Database) GetTripByID(ctx context.Context, tripID string) (*Trip, erro
 		return nil, err
 	}
 
+	fmt.Println("got trip from bd")
+	fmt.Println(trip)
+
 	return &trip, nil
 }
 
@@ -79,6 +84,7 @@ func (db *Database) CancelTripByID(ctx context.Context, tripID string) error {
 	if _, err := coll.DeleteOne(ctx, bson.M{"_id": currID}); err != nil {
 		return err
 	}
+	fmt.Println("cancelled trip")
 
 	return nil
 }
@@ -89,6 +95,8 @@ func (db *Database) CreateTrip(ctx context.Context, trip *Trip) error {
 	if _, err := coll.InsertOne(ctx, trip); err != nil {
 		return err
 	}
+
+	fmt.Println("trip created")
 
 	return nil
 }
