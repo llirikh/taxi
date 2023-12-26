@@ -40,6 +40,7 @@ func SendMessage(writer *kafka.Writer, i int) {
 
 	if err != nil {
 		fmt.Println("!!! TRIP WRITING ERROR : " + err.Error() + " !!!")
+		fmt.Printf("!!! TOPIC:%v PARTITION:%v OFFSET:%v	%s = %s\n", msg.Topic, msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
 	} else {
 		fmt.Println("TRIP PRODUCED -> ", key)
 	}
@@ -60,7 +61,7 @@ func main() {
 	topicFrom := os.Getenv("topicFROM")
 	topicClient := os.Getenv("topicCLIENT")
 	topicDriver := os.Getenv("topicDRIVER")
-	groupID := os.Getenv("groupID")
+	groupID := os.Getenv("GroupID")
 
 	// Init reader
 	reader := newKafkaReader(kafkaURL, topicFrom, groupID)
@@ -76,8 +77,9 @@ func main() {
 	fmt.Println("*** START TRIP ***")
 	for i := 0; ; i++ {
 		SendMessage(writerClient, i)
+		fmt.Println("!!! " + topicClient + " !!!")
 		SendMessage(writerDriver, i)
-		time.Sleep(1 * time.Second)
+		time.Sleep(3 * time.Second)
 		GetMessage(reader)
 	}
 }

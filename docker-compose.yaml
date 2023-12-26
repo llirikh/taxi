@@ -3,14 +3,14 @@ services:
 
   zookeeper:
     hostname: zookeeper
-    image: wurstmeister/zookeeper:3.4.6
+    image: wurstmeister/zookeeper:latest
     expose:
       - "2182"
     ports:
       - "2182:2182"
 
   kafka:
-    image: wurstmeister/kafka
+    image: wurstmeister/kafka:latest
     env_file:
       - kafka/kafka-variables.env
     depends_on:
@@ -19,6 +19,18 @@ services:
       - '9093:9092'
       - '8082:8082'
       - '8083:8083'
+
+#  test_trip:
+#      build:
+#        context: test_trip
+#      environment:
+#        kafkaURL: kafka:9092
+#        topicFROM: topic-client-driver
+#        topicCLIENT: topic-client
+#        topicDRIVER: topic-driver
+#        GroupID: trip-group
+#      depends_on:
+#        - kafka
 
   trip:
     build:
@@ -32,6 +44,16 @@ services:
       GroupID: trip-group
     depends_on:
       - kafka
+
+#  kafka-ui:
+#    container_name: kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    ports:
+#      - 8080:8080
+#    environment:
+#      DYNAMIC_CONFIG_ENABLED: 'true'
+#    volumes:
+#      - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
 
   test_client:
     build:

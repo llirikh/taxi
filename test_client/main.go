@@ -72,12 +72,12 @@ func main() {
 	fmt.Println(kafkaURL, topicTo, topicFrom, groupId)
 	fmt.Println(writer)
 	fmt.Println(reader)
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	fmt.Println("*** START CLIENT ***")
 	for i := 0; ; i++ {
 		SendMessage(writer, i)
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 		//GetMessage(reader)
 	}
 }

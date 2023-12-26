@@ -31,3 +31,10 @@ type Event struct {
 	Time            string            `json:"time"`
 	Data            map[string]string `json:"data"`
 }
+
+type Trip struct {
+	Id      string
+	UserId  string
+	OfferId string
+	Status  string
+}

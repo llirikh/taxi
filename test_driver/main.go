@@ -72,12 +72,12 @@ func main() {
 	fmt.Println(kafkaURL, topicTo, topicFrom, groupId)
 	fmt.Println(writer)
 	fmt.Println(reader)
-	time.Sleep(7 * time.Second)
+	time.Sleep(4 * time.Second)
 
 	fmt.Println("*** START DRIVER ***")
 	for i := 0; ; i++ {
 		SendMessage(writer, i)
-		time.Sleep(9 * time.Second)
-		//GetMessage(reader)
+		time.Sleep(4 * time.Second)
+		GetMessage(reader)
 	}
 }
